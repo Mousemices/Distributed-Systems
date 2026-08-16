@@ -49,3 +49,12 @@ def create_file(request: FileRequest):
 
     return file_metadata
 
+@app.get("/files/{filename}")
+def get_file_metadata(filename: str):
+    with open(checkpoint_path) as json_file:
+        checkpoint = json.load(json_file)
+
+    if filename not in checkpoint:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return checkpoint[filename]
