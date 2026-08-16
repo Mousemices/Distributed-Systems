@@ -1,0 +1,6 @@
+name: namenode
+services:
+  namenode:
+    build: .
+    ports:
+      - "8000:80"
