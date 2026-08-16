@@ -29,3 +29,8 @@ def read_item(item_id: int, q: Union[str, None] = None):
 def sum_numbers(request: SumRequest):
     result = request.x + request.y
     return {"result": result}
+
+@app.post("/multiply/{a}/{b}")
+def multiply_numbers(a: int, b:int):
+    result = a * b
+    return {"result": result}
