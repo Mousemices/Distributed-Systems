@@ -58,3 +58,37 @@ def get_file_metadata(filename: str):
         raise HTTPException(status_code=404, detail="File not found")
 
     return checkpoint[filename]
+
+@app.post("/files/{filename}/blocks")
+def add_block_to_file(filename: str):
+    with open(checkpoint_path) as json_file:
+        checkpoint = json.load(json_file)
+    
+    if filename not in checkpoint:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    with open(settings_path) as json_file:
+        settings = json.load(json_file)
+
+    datanodes = settings["datanodes"]
+    replication_factor = settings["replication_factor"]
+    
+    # reference the file metadata from the checkpoint
+    file_metadata = checkpoint[filename]
+    block_number = len(file_metadata["blocks"])
+
+    replicas = []
+
+    for replica_number in range(replication_factor):
+        datanode_index = (block_number + replica_number) % len(datanodes)
+        datanode = datanodes[datanode_index]
+        replicas.append(str(datanode["id"]))
+    
+    file_metadata["blocks"].append({"number": block_number, "replicas": replicas})
+
+    with open(checkpoint_path, "w") as json_file:
+        json.dump(checkpoint, json_file)
+
+    return file_metadata
+
+    
